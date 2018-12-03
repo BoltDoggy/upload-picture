@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<script src="jquery-1.9.1.min.js"></script>
+</head>
+<body>
+	<input type="file"  id="file5" multiple>
+	<button type="button" class="btnFile5">上传5</button> 
+</body>
+<script>
+	//方式5
+	$(".btnFile5").click(function () {
+	    $.ajax({
+	        url: "/upload4",
+	        type: "POST",
+	        data: $("#file5")[0].files[0],
+	        processData: false,  // 告诉jQuery不要去处理发送的数据
+	        contentType: false,   // 告诉jQuery不要去设置Content-Type请求头
+	        success: function (responseText) {
+	            alert(responseText);
+	        }
+	    });    
+	}); 
+</script>
+</html>

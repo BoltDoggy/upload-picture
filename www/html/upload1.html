@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+	<title>证件上传</title>
+	<link rel="stylesheet" type="text/css" href="http://static.wanlianjin.com/data/m/wlcs/css/abb/common.css" />
+	<script src="http://static.wanlianjin.com/data/m/wlcs/js/nocar/jquery-1.7.2.min.js" type="text/javascript" charset="utf-8"></script>
+	<script src="http://static.wanlianjin.com/data/m/wlcs/js/nocar/rem.js" type="text/javascript" charset="utf-8"></script>
+	<style>
+		* {
+			box-sizing: border-box;
+		}
+		body,
+		html {
+			height: 100%;
+		}
+		header{
+			height:0.8rem;
+			background:#1c1b21;
+		}
+		.content li{
+			width:6.04rem;
+			height:3.22rem;
+			margin:0.18rem auto 0;
+			position:relative;
+		}
+		.content li .tishi{
+			width:6.04rem;
+			height:3.22rem;
+			position:absolute;
+			top:0;
+			left:0;
+			background:rgba(0,0,0,.6);
+			text-align:center;
+			line-height:3.22rem;
+			color:#fff;
+			display:none;
+		}
+		.active{
+			display:block !important;
+			z-index:99999;
+		}
+		.content li img{
+			position:absolute;
+			width:100%;
+			height:100%;
+			top:0;
+		}
+		.content li input{
+			width:1.2rem;
+			height:1.3rem;
+			position:absolute;
+			top:0.74rem;
+			left:2.47rem;
+			opacity:0;
+		}
+	</style>
+</head>
+<body>
+	<header></header>
+	<ul class="content">
+		<li id="DP">
+			<div class="tishi">请点击上传图片</div>
+			<img id="_dp" src="../images/upload1.png"/>
+			<input class="DP" data-role="none" type="file" accept="image/jpg,image/jpeg,image/png,image/gif,capture=camera"/>
+		</li>
+		<li id="DL">
+			<div class="tishi">请点击上传图片</div>
+			<img id="_dl" src="../images/upload2.jpg"/>
+			<input class="DL" type="file"/>
+		</li>
+		<li id="ID">
+			<div class="tishi">请点击上传图片</div>
+			<img id="_id" src="../images/upload3.png"/>
+			<input class="ID" type="file"/>
+		</li>
+	</ul>
+	<script type="text/javascript">
+	let _ctx, _mimeType, _width, _height, _quality, _targetSize, _onSuccess
+	var DP = document.getElementsByClassName('DP')[0]
+	var uploadDP = document.getElementById('DP')
+	let imgFile = null
+    DP.onchange = function (e) {
+        // 这里调用compress函数
+	    if (DP.files.length > 0) {
+	        const file = e.target.files[0]
+	        var w = $('#DP').width();
+	        var h = $('#DP').height();
+
+	        compress(file,w, h, 322, function (data) {
+	        	console.log(data.dataUrl)
+	            $('#_dp').attr('src',data.dataUrl)
+	            $('.DP').css('width','0');
+	            $('#DP').find('div').addClass('active')
+	        })
+	    }
+    }
+
+	/**
+	* 压缩图片文件
+	* @param target 图片文件
+	* @param quality_size 文件大小
+	* @param maxWidth  最大宽度
+	* @param maxHeight 最大高度
+	* @param onSuccess 成功回调
+	*/
+	
+	function compress(target, quality_size, maxWidth, maxHeight, onSuccess) {
+	    // 这里做压缩
+	   
+	    if (typeof target === 'object') {  // 首次执行
+	        const file = target
+
+	        const fileSize = file.size / 1024
+	       console.log(fileSize)
+	        _targetSize = quality_size
+	        _mimeType = file.type
+	        _onSuccess = onSuccess
+
+	        const srcImg = new Image()
+	        const srcImgData = URL.createObjectURL(file)
+
+	        console.log(srcImgData)//blob:null/420d6afe-5e3e-4455-bcf3-00d4a36b025d
+	        srcImg.src = srcImgData
+
+	        srcImg.onload = function () {
+	        	
+	            // _width = srcImg.naturalWidth
+	            // _height = srcImg.naturalHeight
+	            // if (_width > maxWidth) {
+	            //     _height = maxWidth / _width * _height
+	            //     _width = maxWidth
+	            // }
+	            // if (_height > maxHeight) {
+	            //     _width = maxHeight / _height * _width
+	            //     _height = maxHeight
+	            // }
+	            // const ratio = _width / _height
+	            _cvs = document.createElement('canvas');
+	            _cvs.width = _width;
+	            _cvs.height = _height;
+	            _ctx = _cvs.getContext("2d")
+	            _ctx.drawImage(srcImg, 0, 0, _width, _height)
+	            var imgData = _cvs.toDataURL(_mimeType, 1);
+
+	            console.log(imgData)//base64位的字符串
+	            const imgSize = Math.round(imgData.replace('data:' + _mimeType + ';base64,', '').length * 3 / 4)
+	            console.log(imgSize,_targetSize)
+	             imgSize > _targetSize ? compress(imgData, _targetSize / imgSize) :  _onSuccess({ dataUrl: imgData}) 
+	        }
+	    } 
+	}
+
+	</script>
+</body>
+</html>

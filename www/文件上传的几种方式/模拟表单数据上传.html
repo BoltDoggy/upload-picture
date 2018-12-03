@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<script src="jquery-1.9.1.min.js"></script>
+</head>
+<body>
+	<input id="fileinfo" type="file" class="notFormFile" />
+	<button type="button" class="btnNotForm">上传4</button>
+</body>
+<script>
+	$(".btnNotForm").click(function () {
+	    //初始化一个FormData对象
+	    var formData = new FormData();
+	    //将文件塞入FormData
+	    formData.append("files", $(".notFormFile")[0].files[0]);
+	    $.ajax({
+	        url: "/upload3",
+	        type: "POST",
+	        data: formData,
+	        processData: false,  // 告诉jQuery不要去处理发送的数据
+	        contentType: false,   // 告诉jQuery不要去设置Content-Type请求头
+	        success: function (responseText) {
+	            alert(responseText);
+	        }
+	    });
+	});
+</script>
+</html>

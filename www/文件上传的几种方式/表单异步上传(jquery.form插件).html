@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<script src="jquery-1.9.1.min.js"></script>
+	<script src="jquery.form.js"></script>
+</head>
+<body>
+	<form id="form2" action="/upload2" method="post" enctype="multipart/form-data">
+    <input type="file" class="file1" name="file1" />
+    <button type="submit" class="but1">上传1</button>
+    <button type="button" class="but2">上传2</button>
+</form>
+</body>
+<script>
+//方式2（通过ajaxForm绑定ajax操作）
+$(function () {
+	$(".but2").click(function () {
+	    $('#form2').ajaxForm({
+	        success: function (responseText) {
+	            alert(responseText);
+	        }
+	    });
+	})
+});	
+//方式3（通过ajaxSubmit直接执行ajax操作）
+$(function () {
+    $(".but2").click(function () {
+        $('#form2').ajaxSubmit({
+            success: function (responseText) {
+                alert(responseText);
+            }
+        });
+    });
+});
+</script>
+</html>

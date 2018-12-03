@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<script src="jquery-1.9.1.min.js"></script>
+</head>
+<body>
+	<textarea class="divFile7" style="min-width:800px;height:150px" placeholder="请将文件拖拽到这里"></textarea>
+	<textarea class="divFile8" style="min-width:800px;height:150px" placeholder="请将文件直接粘贴到这里"></textarea>
+</body>
+<script>
+//方式7:拖拽
+ $(".divFile7")[0].ondrop = function (event) {
+
+     event.preventDefault();//不要执行与事件关联的默认动作
+     var files = event.dataTransfer.files;//获取拖上来的文件
+
+     //以下代码不变
+     var formData = new FormData();//初始化一个FormData对象
+     formData.append("files", files[0]);//将文件塞入FormData
+     $.ajax({
+         url: "/upload6",
+         type: "POST",
+         data: formData,
+         processData: false,  // 告诉jQuery不要去处理发送的数据
+         contentType: false,   // 告诉jQuery不要去设置Content-Type请求头
+         success: function (responseText) {
+             alert(responseText);
+         }
+     });
+ };
+
+//方式8：粘贴
+$(".divFile8")[0].onpaste = function (event) {
+    event.preventDefault();//不要执行与事件关联的默认动作
+    var clipboard = event.clipboardData.items[0];//剪贴板数据
+    console.log(clipboard)
+    if (clipboard.kind == 'file' || clipboard.type.indexOf('image') > -1) {//判断是图片格式
+        var imageFile = clipboard.getAsFile();//获取文件
+
+        //以下代码不变
+        var formData = new FormData;
+        formData.append('files', imageFile);
+        formData.append('fileName', "temp.png");//这里给文件命个名（或者直接在后台保存的时候命名）
+        $.ajax({
+            url: "/upload6",
+            type: "POST",
+            data: formData,
+            processData: false,  // 告诉jQuery不要去处理发送的数据
+            contentType: false,   // 告诉jQuery不要去设置Content-Type请求头
+            success: function (responseText) {
+                alert(responseText);
+            }
+        });
+    }
+};
+</script>
+</html>

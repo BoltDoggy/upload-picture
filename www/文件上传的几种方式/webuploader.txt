@@ -1,0 +1,3 @@
+webuploader插件使用
+官网：http://fex.baidu.com/webuploader/
+插件下载：https://github.com/fex-team/webuploader/releases/download/0.1.5/webuploader-0.1.5.zip

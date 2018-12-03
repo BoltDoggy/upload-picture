@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+</head>
+<body>
+<!--
+【注意】
+1、需要post提交
+2、enctype="multipart/form-data" （传输文件）
+3、需要提交的表单元素需要设置 name 属性
+-->
+<form action="/upload1" method="post" enctype="multipart/form-data">
+    <input type="file" class="file1" name="file1" />
+    <button type="submit" class="but1">上传</button>
+</form>
+</body>
+</html>

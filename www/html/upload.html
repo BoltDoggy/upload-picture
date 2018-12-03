@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+	<title>证件上传</title>
+	<link rel="stylesheet" type="text/css" href="http://static.wanlianjin.com/data/m/wlcs/css/abb/common.css" />
+	<script src="http://static.wanlianjin.com/data/m/wlcs/js/nocar/jquery-1.7.2.min.js" type="text/javascript" charset="utf-8"></script>
+	<script src="http://static.wanlianjin.com/data/m/wlcs/js/nocar/rem.js" type="text/javascript" charset="utf-8"></script>
+	<script src="js/lrz.bundle.js"></script>
+	<style>
+		* {
+			box-sizing: border-box;
+		}
+		body,
+		html {
+			height: 100%;
+		}
+		header{
+			height:0.8rem;
+			background:#1c1b21;
+		}
+		.content li{
+			width:6.04rem;
+			height:3.22rem;
+			background:red;
+			margin:0.18rem auto 0;
+			position:relative;
+		}
+		.content li:nth-child(1){
+			background:url(../images/upload1.png);
+			background-size:100% 100%;
+		}
+		.content li:nth-child(2){
+			background:url(../images/upload2.jpg);
+			background-size:100% 100%;
+		}
+		.content li:nth-child(3){
+			background:url(../images/upload3.png);
+			background-size:100% 100%;
+		}
+		.content li input{
+			width:1.2rem;
+			height:1.3rem;
+			position:absolute;
+			top:0.74rem;
+			left:2.47rem;
+			opacity:0;
+		}
+	</style>
+</head>
+<body>
+	<header></header>
+	<ul class="content">
+		<li id="DP"><input class="DP" type="file"/></li>
+		<li id="DL"><input class="DL" type="file"/></li>
+		<li id="ID"><input class="ID" type="file"/></li>
+	</ul>
+	<script>
+	$(function(){
+		// autoSize();
+		
+		$('.DP').on('change',function(){
+			compress(this,function(){
+				console.log(file1)
+				$(this).parent().css('background',file1)
+			})
+		})
+		// $('#DP').on('click',function(){
+		// 	compress(this,function(){
+		// 		$(this).css('background',file1)
+		// 	})
+		// })
+/*
+		compress(this,function(){
+			$.ajax({
+				url: 'path',
+				type: 'POST',
+				data: {
+					'name':name,
+					'base64':file1
+				},
+				async: false,
+				cache: false,
+				contentType: false,
+				processData: false,
+				success: function(result){
+					console.log(result)
+					//如果返回{msg:0}，则跳转页面
+					if(result.msg==0){
+						window.location.href=href;
+					}
+				}
+			});
+		})
+*/
+		function compress(a,onSuccess){
+			var picA = [];
+			var file1 = "";
+			if($(a).val != "") {
+				var f1 = $(a).get(0).files[0];
+				var name = f1.name;
+                lrz(f1,{
+                	width:800
+                }).then(function(rst){
+                	var sourceSize = toFixed2(f1.size / 1024);    //压缩前图片大小kB
+                    var resultSize = toFixed2(rst.fileLen / 1024),    //压缩后图片大小
+                        scale = parseInt(100 - (resultSize / sourceSize * 100));    //压缩比例
+                    console.log(sourceSize)
+                    console.log(resultSize)
+                    console.log(scale)
+                    var pos = rst.base64.indexOf("4") + 2;
+                    file1 = rst.base64.substring(pos, rst.base64.length - pos);//去掉Base64:开头的标识字符
+                })
+			}
+		}
+		function toFixed2(num) {
+	        return parseFloat(+num.toFixed(2));
+	    }
+
+		// $('.DL').on('change',function(){
+		// 	window.location.href='addDL.html'
+		// })
+		// $('.ID').on('change',function(){
+		// 	window.location.href='addIDCard.html'
+		// })
+	})
+	</script>
+</body>
+</html>

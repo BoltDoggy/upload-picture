@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+	<title>证件上传</title>
+	<link rel="stylesheet" type="text/css" href="http://static.wanlianjin.com/data/m/wlcs/css/abb/common.css" />
+	<script src="http://static.wanlianjin.com/data/m/wlcs/js/nocar/jquery-1.7.2.min.js" type="text/javascript" charset="utf-8"></script>
+	<script src="http://static.wanlianjin.com/data/m/wlcs/js/nocar/rem.js" type="text/javascript" charset="utf-8"></script>
+	<script src="http://static.wanlianjin.com/data/m/wlcs/js/car/fnBase.js" type="text/javascript" charset="utf-8"></script>
+	<script type="text/javascript" src="js/binaryajax.js" ></script> 
+	<script type="text/javascript" src="js/exif.js" ></script> 
+	<script type="text/javascript" src='js/LocalResizeIMG1.js'></script>
+	<script src='http://static.wanlianjin.com/data/m/wlcs/js/car/mobileBUGFix.mini.js' type="text/javascript" charset="utf-8" ></script>
+	<style>
+		* {
+			box-sizing: border-box;
+		}
+		body,
+		html {
+			height: 100%;
+		}
+		.content li{
+			width:6.04rem;
+			height:3.22rem;
+			margin:0.18rem auto 0;
+			position:relative;
+		}
+		.content li .tishi{
+			width:6.04rem;
+			height:3.22rem;
+			position:absolute;
+			top:0;
+			left:0;
+			display:none;
+		}
+		.active{
+			display:block !important;
+			z-index:9999;
+		}
+		.content li img{
+			position:absolute;
+			width:100%;
+			height:100%;
+			top:0;
+		}
+		.content li input{
+			width:1.2rem;
+			height:1.3rem;
+			position:absolute;
+			top:0.74rem;
+			left:2.47rem;
+			opacity:0;
+		}
+	</style>
+</head>
+<body>
+	<ul class="content">
+		<li id="DP">
+			<div class="tishi tishi1" onclick="upload('.DP','#_dp','.tishi1','x','xszj')"></div>
+			<img id="_dp" src="../image/paper/upload1.png"/>
+			<input class="DP" data-role="none" type="file" accept="image/*" onclick="window.my.getPicture('x')"/>
+		</li>
+		<li id="DL">
+			<div class="tishi tishi2" onclick="upload('.DL','#_dl','.tishi2','j','jszj')"></div>
+			<img id="_dl" src="../image/paper/upload2.jpg"/>
+			<input class="DL" data-role="none" type="file" accept="image/*"  onclick="window.my.getPicture('j')"/>
+		</li>
+		<li id="ID">
+			<div class="tishi tishi3" onclick="upload('.ID','#_id','.tishi3','s','sfzj')"></div>
+			<img id="_id" src="../image/paper/upload3.png"/>
+			<input class="ID" data-role="none" type="file" accept="image/*"  onclick="window.my.getPicture('s')"/>
+		</li>
+	</ul>
+</body>
+<script type="text/javascript">
+	var n = 0;
+	sessionStorage.xszj='';
+    sessionStorage.jszj='';
+    sessionStorage.sfzj='';
+    sessionStorage.setItem("imgpath","");
+    sessionStorage.b64data="";
+    //安卓调用本方法，获取参数,进行回显
+    function showPic(str){
+        var strType = str.slice(0,1);
+        var strSrc = str.slice(1);
+        if(strType == 'x') {
+        	$('#_dp').attr('src',strSrc);
+        	$('.tishi1').addClass('active');
+        }else if(strType == 'j'){
+        	$('#_dl').attr('src',strSrc);
+        	$('.tishi2').addClass('active');
+        }else{
+        	$('#_id').attr('src',strSrc);
+        	$('.tishi3').addClass('active');
+        }
+	}
+	//ios页面回显
+    compress('.DP',0.8,'#_dp','.tishi1');
+	compress('.DL',0.8,'#_dl','.tishi2');
+	compress('.ID',0.5,'#_id','.tishi3');
+	function upload(inputCla,imgId,ts,type,card){
+		n+=1;
+	    var baseStr = $(imgId).attr('src').split(',')[1];
+	    var name = 'avator'+n+'.jpg';
+	    doUploadByBase64(name,baseStr,ts,type,card);
+	}
+    //compress压缩转换成base64位上传
+    //参数解释:inputCla:上传input的class;qua:压缩图片的质量（取值为0-1）越大越好;imgId:回显图片的id
+	function compress(inputCla,qua,imgId,ts){
+		$(inputCla).localResizeIMG({
+	        quality: qua,
+	        success: function (result) {
+	            var img = new Image();
+	            img.src = result.base64;
+	            console.log(img.src)
+	            $(imgId).attr('src' , img.src);
+	            $(ts).addClass('active');
+	        }    
+		}) 
+	}
+	//上传base64位的图片
+	function doUploadByBase64(name,baseStr,ts,type,card) {
+		fnBase.loadShow()
+		$('.loading').css('z-index','99999')
+		sessionStorage.b64data=baseStr;
+		var obj = new Object();
+		obj.name = name;
+		obj.base64 =baseStr;
+		sessionStorage.setItem(card,baseStr);
+		obj.type = type;
+		console.log(obj)
+		$.ajax({
+			url:'/upload',
+			type:'POST',
+			contentType:"application/json",
+			data:JSON.stringify(obj),
+			success:function(result){
+				//如果返回{code:0}，则跳转页面
+				if(result.code=='0'){
+					fnBase.loadHide()
+					$(ts).removeClass('active');
+					window.location.href="addDP.html";
+					//window.location.href="route?des="+result.des;
+					sessionStorage.setItem("data",result.data);
+					sessionStorage.setItem("dlimgpath",result.imgpath);
+				}else{
+				   fnBase.myalert(result.errinfo);
+				}   
+			}
+		});
+	}
+</script>
+</html>

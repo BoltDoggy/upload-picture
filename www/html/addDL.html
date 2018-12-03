@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+	<title>添加驾驶证</title>
+	<link rel="stylesheet" type="text/css" href="http://static.wanlianjin.com/data/m/wlcs/css/abb/common.css" />
+	<link rel="stylesheet" type="text/css"
+	href="http://static.wanlianjin.com/data/m/wlcs/css/abb/mui.picker.min.css" />
+	<script
+	src="http://static.wanlianjin.com/data/m/wlcs/js/nocar/datecompare.js"
+	type="text/javascript" charset="utf-8"></script>
+	<script src="http://static.wanlianjin.com/data/m/wlcs/js/abb/mui.min.js"
+	type="text/javascript" charset="utf-8"></script>
+	<script
+	src="http://static.wanlianjin.com/data/m/wlcs/js/abb/mui.picker.min.js"
+	type="text/javascript" charset="utf-8"></script>
+	<script src="http://static.wanlianjin.com/data/m/wlcs/js/nocar/jquery-1.7.2.min.js" type="text/javascript" charset="utf-8"></script>
+	<script src="http://static.wanlianjin.com/data/m/wlcs/js/nocar/rem.js" type="text/javascript" charset="utf-8"></script>
+	<style>
+		* {
+				box-sizing: border-box;
+			}
+		body,
+		html {
+			height: 100%;
+		}
+		header{
+			height:0.8rem;
+			background:#1c1b21;
+		}
+		.content{
+			padding:0.15rem 0.32rem 0;
+		}
+		.box{
+			height:2.55rem;
+			background:#eeeeee;
+		}
+		.tip{
+			color:#ffa200;
+			margin:0.22rem 0;
+		}
+		.message li{
+			height:0.9rem;
+			line-height:0.9rem;
+			font-size:0.24rem;
+			color:#999999;
+			padding:0 0.25rem;
+			border-bottom:0.01rem solid #e5e4e4;
+			position:relative;
+		}
+		.message li input{
+			width:3.34rem;
+			color:#666666;
+		}
+		.message li span{
+			float:right;
+			color:#666666;
+			/*padding-right:1.28rem;*/
+		}
+		.btn{
+			height:0.9rem;
+			background:#ffa200;
+			line-height:0.9rem;
+			text-align:center;
+			margin-top:0.26rem;
+			color:#fff;
+			font-size:0.28rem;
+		}
+		#age i{
+			display:inline-block;
+			width:0.32rem;
+			height:0.32rem;
+			background:url(http://static.wanlianjin.com/data/m/wlcs/img/newhealthy/date.jpg) no-repeat;
+			background-size:100% 100%;
+			position:absolute;
+			top:0.23rem;
+			right:0.4rem;
+		}
+	</style>
+	
+</head>
+<body>
+	<header></header>
+	<div class="content">
+		<div class="box"></div>
+		<p class="tip">如果信息识别有误，可点击文字进行修改</p>
+		<ul class="message">
+			<li>车主姓名<span><input type="text" value="李一"/></span></li>
+			<li>行驶证号<span><input type="text" value="78457893579345"/></span></li>
+			<li id="age">添加日期<span><input id="ageResult" type="text" value=""/></span>
+			<i></i></li>
+		</ul>
+		<div class="btn">保存</div>
+	</div>
+	<script>
+	 $(function(){
+	 	var birth = document.getElementById('age');
+	    var birthResult = document.getElementById('ageResult');
+		var ddd =  new Date().Format("yyyy-MM-dd");
+		var initday = ddd;  
+		var arrCurent=initday.split('-');
+		var arrayms=arrCurent;
+		var arraymis=[parseInt(arrCurent[0])+20,arrCurent[1],arrCurent[2]];
+	    initday = new Date(Date.parse(initday.replace(/-/g, "/")));
+	    initday = initday.Format("yyyy-MM-dd");
+	    $("#ageResult").val(initday);
+        var optionsJson = {
+            "type":"date",
+            "value": changeinitday(),
+             beginDate: new Date(arrayms[0],arrayms[1], arrayms[2]),
+             endDate: new Date(arraymis[0],arraymis[1], arraymis[2])
+             //设置结束日期  
+
+        };
+	   	var picker = new mui.DtPicker(optionsJson);
+	   	birth.addEventListener('tap', function() {
+            picker.show(function(rs) {
+	            $("#ageResult").val(rs.text);
+	        }, false);
+        })
+
+	 });	
+	$(function(){
+		$('.btn').on('click',function(){
+			window.location.href="uploadFin.html"
+		})
+	})
+	function  changeinitday(){
+		var ddd =  new Date().Format("yyyy-MM-dd");
+		var initday = ddd;  
+        initday = new Date(Date.parse(initday.replace(/-/g, "/")));
+        initday = initday.Format("yyyy-MM-dd");
+		return initday;
+	}
+	</script>
+</body>
+</html>

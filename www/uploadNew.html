@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>前端对图片进行本地压缩预览并上传实践</title>
+	<script src="https://cdn.bootcss.com/jquery/1.12.4/jquery.min.js"></script>
+</head>
+<body>
+	<input type="file" name="file" accept="image/png, image/jpeg, image/jpg" id="file">
+    <img src="" alt="" id="preview">
+    <button type="button" id="upload">上传</button>
+</body>
+<script>
+	/*
+	图片预览、压缩和上传步骤：
+	1、给<input type="file">添加onchange事件，在事件回调中获取元素的files属性；
+	2、创建image对象，并添加onload事件回调；
+	3、把file对象（File继承Blob）转化为blob url，并赋给image对象的src属性；
+	4、把image对象的onload回调中创建canvas画布，并将图片写入画布；
+	5、通过canvas对象的toDataURL方法，以指定的输出质量生成data url（本质是base64字符串）；
+	6、有了base64，我们就可以通过一定的算法将其还原为二进制对象（Blob对象），或者通过canvas的toBlob来输出blob；
+	7、最后将blob对象append进FormData，通过ajax来post到服务器即可。	
+	*/
+	let _ctx, _mimeType, _width, _height, _quality, _targetSize, _onSuccess
+	const fileEle = document.getElementById('file')
+    const uploadEle = document.getElementById('upload')
+    const previewEle = document.getElementById('preview')
+
+    let imgFile = null
+
+    fileEle.onchange = function (e) {
+        // 这里调用compress函数
+	    if (fileEle.files.length > 0) {
+	        const file = e.target.files[0]
+	        compress(file, 500, 1000, 1000, function (data) {
+	            previewEle.src = data.dataUrl
+	            imgFile = data.blob
+	            console.log(imgFile)
+	            //创建一个空对象
+		        const formData = new FormData()
+		        console.log(fileEle.files[0])
+		        const avatar = fileEle.files[0].name.split('.')[0];
+		        imgFile && formData.append(avatar, imgFile, avatar+'.'+ _mimeType.split('/')[1])
+		        formData.append('user', '666666')
+		        $.ajax({
+		            type: 'post',
+		            url: '/upload',
+		            data: formData,
+		            contentType: false,
+		            processData: false,
+		            success: function (res) {
+		                console.log(res)
+		            },
+		            dataType: 'json'
+		        })
+	        })
+	    }
+    }
+    // uploadEle.onclick = function (e) {
+    //     // 点击上传图片
+    //     if (fileEle.files.length > 0) {
+    //     	//创建一个空对象
+	   //      const formData = new FormData()
+	   //      console.log(fileEle.files[0])
+	   //      imgFile && formData.append('avatar', imgFile, 'avatar.' + _mimeType.split('/')[1])
+	   //      formData.append('user', '666666')
+	   //      $.ajax({
+	   //          type: 'post',
+	   //          url: '/upload',
+	   //          data: formData,
+	   //          contentType: false,
+	   //          processData: false,
+	   //          success: function (res) {
+	   //              console.log(res)
+	   //          },
+	   //          dataType: 'json'
+	   //      })
+	   //  }
+    // }
+
+	/**
+	* 压缩图片文件
+	* @param target 图片文件
+	* @param quality_size 文件大小
+	* @param maxWidth  最大宽度
+	* @param maxHeight 最大高度
+	* @param onSuccess 成功回调
+	*/
+	function compress(target, quality_size, maxWidth, maxHeight, onSuccess) {
+	    // 这里做压缩
+	    if (typeof target === 'object') {  // 首次执行
+	        const file = target
+	        const fileSize = file.size / 1000
+	        _targetSize = quality_size
+	        _mimeType = file.type
+	        _onSuccess = onSuccess
+	        const srcImg = new Image()
+	        const srcImgData = URL.createObjectURL(file)
+	        if (fileSize < _targetSize) {
+	            _onSuccess({ dataUrl: srcImgData, blob: file })
+	            return false
+	        }
+	        srcImg.src = srcImgData
+	        srcImg.onload = function () {
+	            _width = srcImg.naturalWidth
+	            _height = srcImg.naturalHeight
+	            if (_width > maxWidth) {
+	                _height = maxWidth / _width * _height
+	                _width = maxWidth
+	            }
+	            if (_height > maxHeight) {
+	                _width = maxHeight / _height * _width
+	                _height = maxHeight
+	            }
+	            const ratio = _width / _height
+	            _cvs = document.createElement('canvas');
+	            _cvs.width = _width;
+	            _cvs.height = _height;
+	            _ctx = _cvs.getContext("2d")
+	            _ctx.drawImage(srcImg, 0, 0, _width, _height)
+	            var imgData = _cvs.toDataURL(_mimeType, 1);
+	            const imgSize = Math.round(imgData.replace('data:' + _mimeType + ';base64,', '').length * 3 / 4) / 1000
+	            imgSize > _targetSize ? compress(imgData, _targetSize / imgSize) : _cvs.toBlob(blob => { _onSuccess({ dataUrl: imgData, blob: blob }) }, _mimeType, quality)
+	        }
+	    } else if (typeof target === 'string') {
+	        const imgData = target
+	        const newImg = new Image()
+	        const quality = quality_size > 0.9 ? 0.9 : quality_size
+	        newImg.src = imgData
+	        newImg.onload = function () {
+	            _ctx.clearRect(0, 0, _width, _height)
+	            _ctx.drawImage(newImg, 0, 0);
+	            var newImgData = _cvs.toDataURL(_mimeType, quality);
+	            const newImgSize = Math.round(newImgData.replace('data:' + _mimeType + ';base64,', '').length * 3 / 4) / 1000
+	            if (newImgSize > _targetSize) {
+	                compress(newImgData, _targetSize / newImgSize)
+	            } else {
+	                _cvs.toBlob(blob => { _onSuccess({ dataUrl: newImgData, blob: blob }) }, _mimeType, quality)
+	            }
+	        }
+	    }
+	}
+</script>
+</html>

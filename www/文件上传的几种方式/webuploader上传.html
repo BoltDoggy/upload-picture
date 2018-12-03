@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<link href="webuploader/webuploader.css" rel="stylesheet" />
+	<script src="jquery-1.9.1.min.js"></script>
+	<script src="webuploader/webuploader.js"></script>
+</head>
+<body>
+	<div id="picker">选择文件</div>
+	<button id="ctlBtn" class="btn btn-default">开始上传</button>
+</body>
+<script type="text/javascript">
+    var uploader = WebUploader.create({
+
+        // (如果是新浏览器 可以不用 flash)
+        //swf: '/Scripts/webuploader-0.1.5/Uploader.swf',
+
+        // 文件接收服务端。
+        server: '/upload7',
+
+        // 选择文件的按钮。可选。
+        // 内部根据当前运行是创建，可能是input元素，也可能是flash.
+        pick: '#picker'
+    });
+
+    $("#ctlBtn").click(function () {
+        uploader.upload();
+    });
+
+    uploader.on('uploadSuccess', function (file) {
+        alert("上传成功");
+    });
+
+</script>
+</html>

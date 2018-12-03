@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name='viewport'
+          content='width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui'>
+    <meta name='apple-mobile-web-app-capable' content='yes'>
+    <meta name='apple-mobile-web-app-status-bar-style' content='black'>
+    <meta name="format-detection" content="telephone=no"/>
+    <SCRIPT LANGUAGE=JAVASCRIPT>
+        if (window != parent)
+            window.top.location = window.self.location;
+    </SCRIPT>
+    <script src='../../../js/getVersion.min.js'></script>
+
+    <title>个人信息认证</title>
+    <link rel="stylesheet" href="http://static.wanlianjin.com/data/gxb/resources/css/mui/mui.min.css">
+    <script>getCss('css/certf2.css?v=' + wlVersion.m.i);</script>
+
+</head>
+<body class="hide">
+<div class="content">
+    <div class="div-top">
+        <span class="font1 fontColor">1.提交个人认证信息</span>
+        <span class="font2 fontColor">2.上传证件照片</span>
+        <span class="font3">3.人工审核</span>
+        <div class="progress"></div>
+    </div>
+    <div class="div-p2">请上传本人身份证正、反面照片</div>
+    <div class="upCard">
+        <div class="image-box" id="chooseImageBox">
+            <div class="photo" id="showBeforeUpload"
+                 style="background-image: url('http://static.wanlianjin.com/data/gxb/resources/image/photograph.png');"></div>
+            <div class="text-upload">身份证正面</div>
+            <input type='file' name='chooseImage' id="chooseImage" accept="image/*">
+        </div>
+        <div class="image-box">
+            <div class="photo" id="showBeforeUpload1"
+                 style="background-image: url('http://static.wanlianjin.com/data/gxb/resources/image/photograph.png');"></div>
+            <div class="text-upload">身份证背面</div>
+            <input type='file' name='chooseImage1' id="chooseImage1" accept="image/*">
+        </div>
+    </div>
+    <div class="btn" onclick="saveImage()">提交审核</div>
+</div>
+</body>
+</html>
+<script src='../../../js/wl-common.js'></script>
+<script src='../../../js/wl-common-view.js'></script>
+<script src='../../../js/wl-spinner.js'></script>
+<script src="//static.wanlianjin.com/data/gxb/resources/js/mui/mui.min.js"></script>
+<script src="//static.wanlianjin.com/data/gxb/resources/js/jquery-1.9.1.min.js"></script>
+<script src="//static.wanlianjin.com/data/gxb/resources/js/jweixin-1.0.0.js"></script>
+<script src="../../../js/lrz.bundle.js"></script>
+<script type='text/javascript'>
+    autoSize();
+    var openId = localStorage.getItem(wlConfig.openIdName);
+    var file1 = "";
+    var file2 = "";
+    var type1, type2;
+    var spinner = wlSpinner();
+    $("#chooseImage").bind('change', function () {
+        if ($(this).val() != "") {
+            var f1 = $(this).get(0).files[0];
+            var point = $(this).val().lastIndexOf(".");
+            type1 = $(this).val().substr(point);
+            var fileName = $(this).val().split('\\')[$(this).val().split('\\').length - 1];
+
+            if (type1 == ".jpg" || type1 == ".JPG" || type1 == ".png" || type1 == ".PNG" || type1 == ".jpeg" || type1 == ".JPEG" || type1 == ".bmp" || type1 == ".BMP"
+                || (system().isAndroid ? fileName.indexOf('image%') >= 0 : false) //Android系统 部分手机无法获取到后缀  但是获取到的图片名称 都是 image% 开头
+            ) {
+                var sourceSize = toFixed2(f1.size / 1024);    //压缩前图片大小
+                if (sourceSize / 1024 > 3) {
+                    mui.alert("图片过大，请重新选择");
+                } else {
+                    if (system().isAndroid && fileName.indexOf('image%') && type1.length == 0) {
+                        type1 = ".jpg";
+                    }
+                    $('#showBeforeUpload').css('background-image', "url('" + getLocalFilePath($(this)) + "')");
+                    spinner.show();
+//                  if (system().isAndroid) {
+                        file1 = lrz(f1, {
+                            width: 800
+                        }).then(function (rst) {
+                              var sourceSize = toFixed2(f1.size / 1024);    //压缩前图片大小kB
+                              var resultSize = toFixed2(rst.fileLen / 1024),    //压缩后图片大小
+                                  scale = parseInt(100 - (resultSize / sourceSize * 100));    //压缩比例
+								console.log(sourceSize);
+		                        console.log(resultSize);
+		                        console.log(scale);
+                            var pos = rst.base64.indexOf("4") + 2;
+                            file1 = rst.base64.substring(pos, rst.base64.length - pos);//去掉Base64:开头的标识字符
+                            spinner.hide();
+                            return file1;
+                        });
+//                  } else {
+//                      var reader = new FileReader();
+//                      reader.readAsDataURL(f1);
+//                      reader.onload = function (e) {
+//                          var pos = this.result.indexOf("4") + 2;
+//                          file1 = this.result.substring(pos, this.result.length - pos);//去掉Base64:开头的标识字符
+//                          spinner.hide();
+//                      };
+//                  }
+
+                }
+            } else {
+                mui.alert("图片格式不正确！\n当前图片名称: " + fileName);
+            }
+        } else {
+            mui.alert("获取手机图片失败");
+        }
+
+    });
+
+    $("#chooseImage1").bind('change', function () {
+        if ($(this).val() != "") {
+            var f2 = $(this).get(0).files[0];
+            var point = $(this).val().lastIndexOf(".");
+            type2 = $(this).val().substr(point);
+            var fileName = $(this).val().split('\\')[$(this).val().split('\\').length - 1];
+
+            if (type2 == ".jpg" || type2 == ".JPG" || type2 == ".png" || type2 == ".PNG" || type2 == ".jpeg" || type2 == ".JPEG" || type2 == ".bmp" || type2 == ".BMP"
+                || (system().isAndroid ? fileName.indexOf('image%') >= 0 : false) //Android系统 部分手机无法获取到后缀  但是获取到的图片名称 都是 image% 开头
+            ) {
+                var sourceSize = toFixed2(f2.size / 1024);    //压缩前图片大小
+                if (sourceSize / 1024 > 3) {
+                    mui.alert("图片过大，请重新选择");
+                } else {
+                    if (system().isAndroid && fileName.indexOf('image%') && type2.length == 0) {
+                        type2 = ".jpg";
+                    }
+                    $('#showBeforeUpload1').css('background-image', "url('" + getLocalFilePath($(this)) + "')");
+                    spinner.show();
+//                  if (system().isAndroid) {
+                        file2 = lrz(f2, {
+                            width: 800
+                        }).then(function (rst) {
+                        	var sourceSize = toFixed2(f2.size / 1024);    //压缩前图片大小kB
+                              var resultSize = toFixed2(rst.fileLen / 1024),    //压缩后图片大小
+                                  scale = parseInt(100 - (resultSize / sourceSize * 100));    //压缩比例
+								console.log(sourceSize);
+		                        console.log(resultSize);
+		                        console.log(scale);
+                            var pos = rst.base64.indexOf("4") + 2;
+                            file2 = rst.base64.substring(pos, rst.base64.length - pos);//去掉Base64:开头的标识字符
+                            spinner.hide();
+                            return file2;
+                        });
+//                  } else {
+//                      var reader = new FileReader();
+//                      reader.readAsDataURL(f2);
+//                      reader.onload = function (e) {
+//                          var pos = this.result.indexOf("4") + 2;
+//                          file2 = this.result.substring(pos, this.result.length - pos);//去掉Base64:开头的标识字符
+//                          spinner.hide();
+//                      };
+//                  }
+
+                }
+            } else {
+                mui.alert("图片格式不正确！\n当前图片名称: " + fileName);
+            }
+        } else {
+            mui.alert("获取手机图片失败");
+        }
+    });
+
+    function saveImage() {
+        spinner.show();
+        if (file1 == "" || file2 == "") {
+            mui.alert("信息不全！请分别上传身份证正、反面照片");
+            spinner.hide();
+        } else {
+            var data = {
+                openId: openId,
+                imgFile: [{
+                    file: file1,
+                    filetype: type1
+                }, {
+                    file: file2,
+                    filetype: type2
+                }]
+            };
+            PostAsyncData("Wljgj/1506", data, function (rs) {
+                spinner.hide();
+                if (rs.code == 0) {
+                    window.location.href = "certifi3.html" + '?v=' + wlVersion.m.c;
+                } else if (rs.code == '305') {
+                    mui.alert('已通过审核，不能修改。如需修改请联系平台在线客服。');
+                } else {
+                    mui.alert(rs.msg);
+                }
+            }, function () {
+                spinner.hide();
+                mui.alert("上传失败,请重试");
+            });
+        }
+    }
+    function toFixed2(num) {
+        return parseFloat(+num.toFixed(2));
+    }
+    weixinCloseMenu();
+
+    function system() {
+        var ua = navigator.userAgent.toLowerCase();
+        return {
+            isWeixin: ua.indexOf('micromessenger') != -1,
+            isAndroid: ua.indexOf('android') != -1,
+            isIOS: (ua.indexOf('iphone') != -1) || (ua.indexOf('ipad') != -1)
+        }
+    }
+    console.log(system());
+</script>

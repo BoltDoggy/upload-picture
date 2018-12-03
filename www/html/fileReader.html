@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>fileReader上传图片</title>
+</head>
+<body>
+	<input type="file" id="mfile" multiple accept="image/gif,image/jpeg,image/png" onchange="showimage(this)" style="position:absolute;clip:rect(0 0 0 0)"/>
+	<br/><br/>
+	<label for="mfile" class="lb">select File</label>
+	<div class="img_cont" id="cont">
+	 
+	</div>
+	<script>
+	var cont=document.getElementById("cont");
+	function showimage(fl){
+	   var files=fl.files;
+	    if(files.length){
+	       for(var i=0;i<files.length;i++){
+	         //var img=document.createElement("img");
+	          var img=new Image();
+	          img.className="preimg";
+	          cont.appendChild(img);
+	          var reader=new FileReader();
+	          reader.onload=function(event){
+	            //img.src=event.target.result;
+	              console.log(reader.result)//base64字符串
+	              img.src=reader.result;
+	          }
+	         var url=reader.readAsDataURL(files[i]);
+	        }
+	    }
+	}
+
+	/*
+	fileReader使用方法：
+	属性：
+
+	@1：FileReader.error
+	只读，当读取文件发生错误时返回的错误信息。
+	@2：FileReader.readyState
+	只读，表示FileReader对象的当前状态，可以是以下值
+	EMPTY	0	还没有加载数据
+	LOADING
+	1	数据正在加载中
+	DONE	2	数据已经加载完成
+	@3:FileReader.result
+	返回文件的内容，只有当读取方法调用并且读取完成时，此属性才能用。
+
+
+	事件：
+
+	@1：FileReader.onabort
+
+	    读取发生中断时触发此事件。
+
+	@2：FileReader.onerror
+
+	  读取发生错误时触发此事件。
+
+	@3：FileReader.onload
+
+	  读取成功完成时触发此事件。
+
+	@4：FileReader.onloadstart
+
+	   读取开始时触发此事件。
+
+	@5：FileReader.onloadend
+
+	  读取结束时触发此事件，不论读取成功与否。
+
+	@6：FileReader.onprogress
+
+	  读取进行时触发此事件。
+
+
+
+	方法：
+
+	@1：FileReader.abort()
+
+	     中断读取，此时readyState将改变为DONE。
+
+	@2：FileReader.readAsArrayBuffer()
+
+	   读取文件，并作为一个ArrayBuffer对象返回。
+
+	@3：FileReader.readAsBinaryString()
+
+	   读取文件，并范围一个由文件二进制数据转化成的String字符串。
+
+	@4：FileReader.readAsDataURL()
+
+	  读取文件，并范围一个引用文件内容的URL对象。
+
+	@5：FileReader.readAsText()
+
+    读取文件，并范围一个text string文本字符串类型。
+	*/
+	</script>
+</body>
+</html>
